@@ -6,6 +6,7 @@ const API = axios.create({
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': 'true', // Skip ngrok browser warning
   },
 });
 
@@ -108,6 +109,91 @@ export const authAPI = {
       return response.data;
     } catch (error) {
       throw error.response?.data || { message: 'Profile update failed' };
+    }
+  }
+};
+
+// Facebook API functions
+export const facebookAPI = {
+  // Get available Facebook pages
+  getAvailablePages: async (accessToken) => {
+    try {
+      const response = await API.post('/facebook/pages/available', { accessToken });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: 'Failed to fetch available pages' };
+    }
+  },
+
+  // Connect Facebook page
+  connectPage: async (accessToken, pageId) => {
+    try {
+      const response = await API.post('/facebook/pages/connect', { accessToken, pageId });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: 'Failed to connect page' };
+    }
+  },
+
+  // Get connected pages
+  getConnectedPages: async () => {
+    try {
+      const response = await API.get('/facebook/pages');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: 'Failed to fetch connected pages' };
+    }
+  },
+
+  // Disconnect page
+  disconnectPage: async (pageId) => {
+    try {
+      const response = await API.delete(`/facebook/pages/${pageId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: 'Failed to disconnect page' };
+    }
+  },
+
+  // Get conversations
+  getConversations: async (pageId, params = {}) => {
+    try {
+      const response = await API.get(`/facebook/pages/${pageId}/conversations`, { params });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: 'Failed to fetch conversations' };
+    }
+  },
+
+  // Get messages
+  getMessages: async (conversationId, params = {}) => {
+    try {
+      const response = await API.get(`/facebook/conversations/${conversationId}/messages`, { params });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: 'Failed to fetch messages' };
+    }
+  },
+
+  // Send message
+  sendMessage: async (conversationId, messageData) => {
+    try {
+      const response = await API.post(`/facebook/conversations/${conversationId}/messages`, {
+        text: messageData.message
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: 'Failed to send message' };
+    }
+  },
+
+  // Test authentication (temporary)
+  testAuth: async () => {
+    try {
+      const response = await API.get('/facebook/test-auth');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: 'Test auth failed' };
     }
   }
 };
